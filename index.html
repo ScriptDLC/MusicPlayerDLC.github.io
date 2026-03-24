@@ -404,46 +404,53 @@ document.getElementById('fileIn').addEventListener('change',e=>{if(e.target.file
 document.getElementById('coverIn').addEventListener('change',e=>{
   const f=e.target.files[0]; if(!f) return;
   const isVideo = f.type.startsWith('video/');
-  const url = URL.createObjectURL(f);
-  if(cur>=0){
-    tracks[cur].cover = url;
-    tracks[cur].coverIsVideo = isVideo;
-    tracks[cur].coverBlob = f; // сохраняем Blob для IndexedDB
-    // обновляем запись в БД
-    if(tracks[cur].dbId && db){
-      const tx=db.transaction(STORE,'readwrite');
-      const req=tx.objectStore(STORE).get(tracks[cur].dbId);
-      req.onsuccess=e2=>{
-        const rec=e2.target.result;
-        if(rec){
-          if(isVideo){
-            rec.coverBlob=f; rec.cover=null; rec.coverIsVideo=true;
-          } else {
-            // для картинки читаем как dataURL
-            const rd=new FileReader();
-            rd.onload=ev=>{ rec.cover=ev.target.result; rec.coverBlob=null; rec.coverIsVideo=false; tx.objectStore(STORE).put(rec); };
-            rd.readAsDataURL(f);
-            return;
-          }
-          tx.objectStore(STORE).put(rec);
-        }
-      };
+  // GIF сохраняем как Blob (анимация не работает через dataURL в некоторых браузерах)
+  const isGif = f.type === 'image/gif';
+  const useBlobStore = isVideo || isGif;
+
+  if(useBlobStore){
+    // видео и GIF — храним Blob, показываем через ObjectURL
+    const url = URL.createObjectURL(f);
+    if(cur>=0){
+      tracks[cur].cover = url;
+      tracks[cur].coverIsVideo = isVideo;
+      tracks[cur].coverBlob = f;
+      _updateCoverInDB(cur);
+      refreshCard(cur);
     }
-    refreshCard(cur);
-  }
-  if(!isVideo){
-    // для картинки также сохраняем dataURL в tracks для стабильности
-    const rd=new FileReader();
-    rd.onload=ev=>{
-      if(cur>=0) tracks[cur].cover=ev.target.result;
-      applyArt(ev.target.result, false);
+    applyArt(url, isVideo);
+  } else {
+    // обычная картинка (jpg/png/webp) — конвертируем в dataURL для надёжного хранения
+    const rd = new FileReader();
+    rd.onload = ev => {
+      const dataUrl = ev.target.result;
+      if(cur>=0){
+        tracks[cur].cover = dataUrl;
+        tracks[cur].coverIsVideo = false;
+        tracks[cur].coverBlob = null;
+        _updateCoverInDB(cur);
+        refreshCard(cur);
+      }
+      applyArt(dataUrl, false);
     };
     rd.readAsDataURL(f);
-  } else {
-    applyArt(url, true);
   }
   e.target.value='';
 });
+
+function _updateCoverInDB(idx){
+  const t=tracks[idx];
+  if(!t.dbId || !db) return;
+  const tx=db.transaction(STORE,'readwrite');
+  const req=tx.objectStore(STORE).get(t.dbId);
+  req.onsuccess=e=>{
+    const rec=e.target.result; if(!rec) return;
+    rec.cover = (t.coverIsVideo||t.coverBlob) ? null : (t.cover||null);
+    rec.coverBlob = t.coverBlob || null;
+    rec.coverIsVideo = t.coverIsVideo||false;
+    tx.objectStore(STORE).put(rec);
+  };
+}
 function pickCover(){document.getElementById('coverIn').click()}
 async function addFiles(files){
   const arr=Array.from(files).filter(f=>
@@ -483,28 +490,26 @@ async function addFiles(files){
 async function saveOrUpdateTrack(idx){
   if(!db) return;
   const t=tracks[idx];
+  // cover: dataURL если обычная картинка, null если Blob (GIF/видео)
+  const hasBlobCover = !!(t.coverBlob);
+  const coverToSave  = hasBlobCover ? null : (t.cover||null);
+  const blobToSave   = hasBlobCover ? t.coverBlob : null;
   try{
     if(t.dbId){
-      // обновляем существующую запись
       const tx=db.transaction(STORE,'readwrite');
       const req=tx.objectStore(STORE).get(t.dbId);
       req.onsuccess=e=>{
-        const rec=e.target.result;
-        if(!rec) return;
+        const rec=e.target.result; if(!rec) return;
         rec.dur=t.dur;
-        rec.cover=t.coverIsVideo?null:(t.cover||null);
-        rec.coverBlob=t.coverIsVideo?(t.coverBlob||null):null;
+        rec.cover=coverToSave;
+        rec.coverBlob=blobToSave;
         rec.coverIsVideo=t.coverIsVideo||false;
         tx.objectStore(STORE).put(rec);
       };
     } else {
-      // новая запись
       const rec={
-        name:t.name,
-        fileBlob:t.fileBlob,
-        dur:t.dur,
-        cover:t.coverIsVideo?null:(t.cover||null),
-        coverBlob:t.coverIsVideo?(t.coverBlob||null):null,
+        name:t.name, fileBlob:t.fileBlob, dur:t.dur,
+        cover:coverToSave, coverBlob:blobToSave,
         coverIsVideo:t.coverIsVideo||false
       };
       const id=await dbSave(rec);
@@ -521,20 +526,23 @@ async function loadFromDB(){
   if(!saved.length) return;
   for(const rec of saved){
     const url=URL.createObjectURL(rec.fileBlob);
-    let cover=null, coverIsVideo=false;
+    let cover=null, coverIsVideo=false, coverBlob=rec.coverBlob||null;
     if(rec.coverIsVideo && rec.coverBlob){
-      // восстанавливаем видео обложку из Blob
+      // видео обложка — восстанавливаем ObjectURL из Blob
       cover=URL.createObjectURL(rec.coverBlob);
       coverIsVideo=true;
+    } else if(rec.coverBlob && !rec.coverIsVideo){
+      // GIF — восстанавливаем ObjectURL из Blob
+      cover=URL.createObjectURL(rec.coverBlob);
+      coverIsVideo=false;
     } else if(rec.cover){
-      // картинка — dataURL, просто берём как есть
+      // картинка dataURL — берём как есть
       cover=rec.cover;
       coverIsVideo=false;
     }
     const idx=tracks.push({
       url, name:rec.name, fileBlob:rec.fileBlob,
-      dur:rec.dur||0, cover, coverIsVideo,
-      coverBlob: rec.coverBlob||null, dbId:rec.id
+      dur:rec.dur||0, cover, coverIsVideo, coverBlob, dbId:rec.id
     })-1;
     addCard(idx);
     const el=document.getElementById(`cd-dur-${idx}`);
@@ -561,7 +569,41 @@ async function deleteTrack(idx){
   updatePlaylistState();showSaved();
 }
 function rebuildCardIndices(){document.querySelectorAll('.pl-card').forEach((card,i)=>{card.id=`pl-card-${i}`;card.dataset.idx=i;card.onclick=()=>loadTrack(parseInt(card.dataset.idx),true);const del=card.querySelector('.card-del');if(del)del.onclick=e=>{e.stopPropagation();deleteTrack(parseInt(card.dataset.idx))};const dur=card.querySelector('.card-dur');if(dur)dur.id=`cd-dur-${i}`;const prog=card.querySelector('.card-prog-fill');if(prog)prog.id=`cd-prog-${i}`})}
-async function readId3(file){return new Promise(res=>{const rd=new FileReader();rd.onload=e=>{try{const b=new Uint8Array(e.target.result);if(b[0]!==73||b[1]!==68||b[2]!==51){res(null);return}const sz=((b[6]&127)<<21)|((b[7]&127)<<14)|((b[8]&127)<<7)|(b[9]&127);let p=10;while(p<sz+10){if(p+10>b.length)break;const id=String.fromCharCode(b[p],b[p+1],b[p+2],b[p+3]);const fs=(b[p+4]<<24)|(b[p+5]<<16)|(b[p+6]<<8)|b[p+7];if(fs<=0||fs>sz)break;p+=10;if(id==='APIC'){let me=p+1;while(b[me]!==0&&me<p+50)me++;let ds=me+2;while(b[ds]!==0&&ds<me+200)ds++;ds++;const mime=String.fromCharCode(...b.slice(p+1,me));res(URL.createObjectURL(new Blob([b.slice(ds,p+fs)],{type:mime||'image/jpeg'})));return}p+=fs}res(null)}catch{res(null)}};rd.readAsArrayBuffer(file.slice(0,512*1024))})}
+async function readId3(file){
+  return new Promise(res=>{
+    const rd=new FileReader();
+    rd.onload=e=>{
+      try{
+        const b=new Uint8Array(e.target.result);
+        if(b[0]!==73||b[1]!==68||b[2]!==51){res(null);return}
+        const sz=((b[6]&127)<<21)|((b[7]&127)<<14)|((b[8]&127)<<7)|(b[9]&127);
+        let p=10;
+        while(p<sz+10){
+          if(p+10>b.length) break;
+          const id=String.fromCharCode(b[p],b[p+1],b[p+2],b[p+3]);
+          const fs=(b[p+4]<<24)|(b[p+5]<<16)|(b[p+6]<<8)|b[p+7];
+          if(fs<=0||fs>sz) break;
+          p+=10;
+          if(id==='APIC'){
+            let me=p+1; while(b[me]!==0&&me<p+50) me++;
+            let ds=me+2; while(b[ds]!==0&&ds<me+200) ds++; ds++;
+            const mime=String.fromCharCode(...b.slice(p+1,me))||'image/jpeg';
+            const imgBlob=new Blob([b.slice(ds,p+fs)],{type:mime});
+            // конвертируем в dataURL чтобы сохранялось в IndexedDB
+            const fr=new FileReader();
+            fr.onload=ev=>res(ev.target.result);
+            fr.onerror=()=>res(null);
+            fr.readAsDataURL(imgBlob);
+            return;
+          }
+          p+=fs;
+        }
+        res(null);
+      }catch{res(null)}
+    };
+    rd.readAsArrayBuffer(file.slice(0,512*1024));
+  });
+}
 
 /* ── PLAYBACK ── */
 function loadTrack(idx,auto){if(idx<0||idx>=tracks.length)return;const prevIdx=cur;cur=idx;const dir=(prevIdx<0||idx>prevIdx)?1:-1;audioEl.src=tracks[cur].url;audioEl.load();updateTitlesAnimated();applyArtAnimated(tracks[cur].cover||null,dir,tracks[cur].coverIsVideo||false);updatePlaylistActive();if(auto){ensureCtx();if(actx.state==='suspended')actx.resume();audioEl.play().then(()=>{playing=true;refreshBtn();artAnim(true);updateMS();updatePlaylistActive();saveSettings()}).catch(console.warn)}else{playing=false;refreshBtn();artAnim(false);saveSettings()}}
