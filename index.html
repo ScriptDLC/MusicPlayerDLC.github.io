@@ -244,8 +244,8 @@ input[type=range].vol::-webkit-slider-thumb:hover{transform:scale(1.35)}
 #colorBtn{
   position:absolute;left:-54px;top:50%;
   /* offset below eqToggle: eqToggle is top:50% translateY(-50%), height 90px → bottom edge at 50%+45px */
-  /* colorBtn sits 10px below that */
-  transform:translateY(calc(-50% + 60px));
+  /* colorBtn sits 14px below that */
+  transform:translateY(calc(-50% + 68px));
   width:42px;height:42px;border:none;border-radius:14px;
   background:rgba(16,14,30,.90);backdrop-filter:blur(20px);
   border:1px solid rgba(255,255,255,.09);color:var(--tx2);cursor:pointer;
@@ -253,7 +253,7 @@ input[type=range].vol::-webkit-slider-thumb:hover{transform:scale(1.35)}
   box-shadow:0 8px 24px rgba(0,0,0,.35);transition:all .25s;
   overflow:hidden;
 }
-#colorBtn:hover{background:rgba(255,255,255,.08);color:var(--tx);transform:translateY(calc(-50% + 60px)) scale(1.06)}
+#colorBtn:hover{background:rgba(255,255,255,.08);color:var(--tx);transform:translateY(calc(-50% + 68px)) scale(1.06)}
 #colorBtn.on{
   background:linear-gradient(180deg,color-mix(in srgb,var(--c1) 28%,rgba(16,14,30,.92)),color-mix(in srgb,var(--c2) 18%,rgba(16,14,30,.92)));
   color:var(--tx);border-color:color-mix(in srgb,var(--c1) 40%,transparent);
@@ -354,6 +354,86 @@ input[type=range].vol::-webkit-slider-thumb:hover{transform:scale(1.35)}
   white-space:nowrap;transition:all .2s;width:100%;
 }
 .cp-reset:hover{background:rgba(255,255,255,.12);color:var(--tx)}
+
+/* ── PiP BUTTON ── */
+#pipBtn{
+  position:absolute;bottom:14px;left:14px;
+  width:34px;height:34px;border:none;border-radius:10px;z-index:10;
+  background:rgba(16,14,30,.88);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.10);color:rgba(255,255,255,.65);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);transition:all .22s;
+  opacity:.7;
+}
+#pipBtn:hover{background:rgba(255,255,255,.12);color:#fff;opacity:1;transform:scale(1.08);box-shadow:0 6px 18px rgba(0,0,0,.5)}
+#pipBtn:active{transform:scale(.92)}
+#pipBtn.pip-active{
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c1) 30%,rgba(16,14,30,.9)),color-mix(in srgb,var(--c2) 20%,rgba(16,14,30,.9)));
+  border-color:color-mix(in srgb,var(--c1) 50%,transparent);color:var(--c2);opacity:1;
+  box-shadow:0 4px 16px color-mix(in srgb,var(--c1) 30%,transparent);
+}
+#pipBtn .pip-icon{width:18px;height:18px;display:block;pointer-events:none}
+#pipBtn .pip-tooltip{
+  position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);
+  background:rgba(12,10,24,.95);border:1px solid rgba(255,255,255,.1);
+  border-radius:7px;padding:4px 9px;font-size:10px;color:var(--tx);white-space:nowrap;
+  opacity:0;pointer-events:none;transition:opacity .18s;
+  font-family:'Outfit',sans-serif;
+}
+#pipBtn:hover .pip-tooltip{opacity:1}
+/* ── 3D SPATIAL AUDIO ── */
+.spatial-row{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:16px;padding:12px 14px;border-radius:14px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+  transition:background .25s,border-color .25s;
+}
+.spatial-row.active{
+  background:linear-gradient(135deg,color-mix(in srgb,var(--c1) 14%,rgba(255,255,255,.04)),color-mix(in srgb,var(--c2) 10%,rgba(255,255,255,.04)));
+  border-color:color-mix(in srgb,var(--c1) 35%,transparent);
+}
+.spatial-info{flex:1}
+.spatial-title{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--tx);margin-bottom:2px}
+.spatial-sub{font-size:10px;color:var(--tx2)}
+.spatial-toggle{
+  width:38px;height:22px;border-radius:11px;border:none;cursor:pointer;
+  background:rgba(255,255,255,.12);position:relative;transition:background .35s;flex-shrink:0;
+}
+.spatial-toggle.on{background:linear-gradient(90deg,var(--c1),var(--c2));box-shadow:0 0 14px color-mix(in srgb,var(--c1) 45%,transparent)}
+.spatial-knob{
+  position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;
+  background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.4);
+  transition:transform .35s cubic-bezier(.22,1,.36,1);display:block;
+}
+.spatial-toggle.on .spatial-knob{transform:translateX(16px)}
+.spatial-orbit{margin-top:10px;padding:10px 0 2px}
+.spatial-label{font-size:10px;color:var(--tx2);margin-bottom:6px;letter-spacing:.3px}
+.spatial-speed{
+  width:100%;height:6px;appearance:none;background:rgba(255,255,255,.12);
+  border-radius:4px;outline:none;cursor:pointer;
+}
+.spatial-speed::-webkit-slider-thumb{
+  appearance:none;width:16px;height:16px;border-radius:50%;
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  box-shadow:0 0 8px color-mix(in srgb,var(--c1) 55%,transparent);cursor:pointer;transition:transform .15s;
+}
+.spatial-speed::-webkit-slider-thumb:hover{transform:scale(1.3)}
+.spatial-viz{
+  width:100%;height:56px;position:relative;margin-top:10px;
+  display:flex;align-items:center;justify-content:center;
+}
+.orbit-ring{
+  position:absolute;width:52px;height:52px;border-radius:50%;
+  border:1.5px solid color-mix(in srgb,var(--c2) 40%,transparent);
+  box-shadow:0 0 12px color-mix(in srgb,var(--c1) 25%,transparent);
+}
+.orbit-dot{
+  position:absolute;width:10px;height:10px;border-radius:50%;
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  box-shadow:0 0 10px var(--c1);
+  top:50%;left:50%;transform-origin:0 0;
+}
+.orbit-ears{position:absolute;font-size:18px;line-height:1;user-select:none}
 </style>
 </head>
 <body>
@@ -421,6 +501,14 @@ input[type=range].vol::-webkit-slider-thumb:hover{transform:scale(1.35)}
       <svg class="vi" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M19 5a10 10 0 0 1 0 14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
     </div>
     <button class="add-btn" onclick="document.getElementById('fileIn').click()">+ Добавить музыку</button>
+    <!-- PiP button -->
+    <button id="pipBtn" onclick="togglePip()" title="">
+      <svg class="pip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <rect x="12" y="11" width="8" height="7" rx="1.5" fill="currentColor" stroke="none" opacity=".7"/>
+      </svg>
+      <span class="pip-tooltip" id="pipTooltip">Picture-in-Picture</span>
+    </button>
     <div id="playlist">
       <div class="pl-header">
         <span class="pl-title">Плейлист</span>
@@ -441,6 +529,28 @@ input[type=range].vol::-webkit-slider-thumb:hover{transform:scale(1.35)}
     <div class="eq-head"><span class="eq-ttl">ЭКВАЛАЙЗЕР</span><button class="eq-rst" onclick="eqReset()">Сброс</button></div>
     <div class="eq-pre-wrap" id="eqPresets"></div>
     <div class="eq-bands" id="eqBands"></div>
+    <!-- 3D Spatial Audio toggle -->
+    <div class="spatial-row" id="spatialRow">
+      <div class="spatial-info">
+        <div class="spatial-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+          360° Звук
+        </div>
+        <div class="spatial-sub">360 эффект музыки (делать нехуй)</div>
+      </div>
+      <button class="spatial-toggle" id="spatialToggle" onclick="toggleSpatial()">
+        <span class="spatial-knob"></span>
+      </button>
+    </div>
+    <div class="spatial-orbit" id="spatialOrbit" style="display:none">
+      <div class="spatial-label">Скорость вращения</div>
+      <input type="range" class="spatial-speed" id="spatialSpeed" min="1" max="10" value="4" oninput="updateSpatialSpeed(this.value)">
+      <div class="spatial-viz" id="spatialViz">
+        <div class="orbit-ring"></div>
+        <div class="orbit-dot" id="orbitDot"></div>
+        <span class="orbit-ears">🎧</span>
+      </div>
+    </div>
   </div>
   <!-- COLOR PANEL - right side like EQ -->
   <div id="colorPanel">
@@ -1183,6 +1293,432 @@ function applyPhotoColors(){
 }
 
 buildCpSwatches();
+
+/* ── PICTURE IN PICTURE ── */
+let pipVid=null;
+let pipActive=false;
+let pipRaf=null;
+
+async function togglePip(){
+  const btn=document.getElementById('pipBtn');
+  const tooltip=document.getElementById('pipTooltip');
+
+  if(!document.pictureInPictureEnabled){
+    tooltip.textContent='PiP не поддерживается Chrome';
+    setTimeout(()=>{tooltip.textContent='Picture-in-Picture'},2200);
+    return;
+  }
+
+  try{
+    if(document.pictureInPictureElement){
+      await document.exitPictureInPicture();
+      return;
+    }
+
+    if(!pipVid){
+      pipVid=document.createElement('video');
+      pipVid.style.cssText='position:fixed;opacity:0;pointer-events:none;width:1px;height:1px;top:-9999px;left:-9999px';
+      pipVid.muted=true;
+      document.body.appendChild(pipVid);
+      pipVid.addEventListener('leavepictureinpicture',()=>{
+        pipActive=false;
+        btn.classList.remove('pip-active');
+        tooltip.textContent='Picture-in-Picture';
+        cancelAnimationFrame(pipRaf);pipRaf=null;
+      });
+    }
+
+    const W=480,H=320;
+    const canvas=document.createElement('canvas');
+    canvas.width=W;canvas.height=H;
+    const ctx=canvas.getContext('2d');
+
+    // Preload art image once
+    let pipArtImg=null;
+    let pipArtSrc='';
+    function refreshPipArt(){
+      const el=document.querySelector('#artEl img.loaded');
+      const src=el?el.src:'';
+      if(src&&src!==pipArtSrc){
+        pipArtSrc=src;
+        const i=new Image();i.crossOrigin='anonymous';
+        i.onload=()=>{pipArtImg=i};
+        i.onerror=()=>{pipArtImg=null;pipArtSrc=''};
+        i.src=src;
+      } else if(!src){
+        pipArtImg=null;pipArtSrc='';
+      }
+    }
+    refreshPipArt();
+
+    // Button click zones (x,y,w,h)
+    const ZONES={
+      prev:{x:88,y:246,w:52,h:40},
+      play:{x:188,y:238,w:56,h:56},
+      next:{x:288,y:246,w:52,h:40},
+      volDown:{x:30,y:168,w:36,h:36},
+      volUp:{x:W-66,y:168,w:36,h:36},
+    };
+
+    // Draw art pulse ring angle
+    let ringAngle=0;
+
+    function drawFrame(){
+      ringAngle+=playing?0.018:0;
+      refreshPipArt();
+
+      const c1s=getComputedStyle(document.documentElement).getPropertyValue('--c1').trim()||'#7c5cbf';
+      const c2s=getComputedStyle(document.documentElement).getPropertyValue('--c2').trim()||'#38bdf8';
+
+      // Background
+      ctx.fillStyle='#0c0b18';ctx.fillRect(0,0,W,H);
+      const bg=ctx.createLinearGradient(0,0,W,H);
+      bg.addColorStop(0,c1s+'28');bg.addColorStop(1,c2s+'18');
+      ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+
+      // Art
+      const artX=W/2,artY=110,artR=88;
+
+      // Spinning glow ring when playing
+      if(playing){
+        for(let i=0;i<3;i++){
+          const a=ringAngle+i*(Math.PI*2/3);
+          const gx=artX+Math.cos(a)*artR*0.95;
+          const gy=artY+Math.sin(a)*artR*0.95;
+          const rg=ctx.createRadialGradient(gx,gy,0,gx,gy,40);
+          rg.addColorStop(0,i%2===0?c1s+'99':c2s+'99');
+          rg.addColorStop(1,'transparent');
+          ctx.fillStyle=rg;ctx.fillRect(0,0,W,H);
+        }
+      }
+
+      // Art circle
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(artX,artY,artR,0,Math.PI*2);
+      ctx.clip();
+      if(pipArtImg){
+        ctx.drawImage(pipArtImg,artX-artR,artY-artR,artR*2,artR*2);
+      } else {
+        const ag=ctx.createLinearGradient(artX-artR,artY-artR,artX+artR,artY+artR);
+        ag.addColorStop(0,c1s+'cc');ag.addColorStop(1,c2s+'cc');
+        ctx.fillStyle=ag;ctx.fillRect(artX-artR,artY-artR,artR*2,artR*2);
+        ctx.font='54px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText('🎵',artX,artY);
+      }
+      ctx.restore();
+      // Art border
+      ctx.beginPath();ctx.arc(artX,artY,artR,0,Math.PI*2);
+      ctx.strokeStyle='rgba(255,255,255,0.12)';ctx.lineWidth=2;ctx.stroke();
+
+      // Track name
+      const tname=document.getElementById('tName')?.textContent||'Нет трека';
+      ctx.fillStyle='#f0f4ff';ctx.font='bold 17px Outfit,sans-serif';
+      ctx.textAlign='center';ctx.textBaseline='alphabetic';
+      const nameStr=tname.length>34?tname.slice(0,33)+'…':tname;
+      ctx.fillText(nameStr,W/2,220);
+
+      // Artist / filename subtitle
+      const sub=document.getElementById('tFile')?.textContent||'';
+      if(sub&&sub!==nameStr){
+        ctx.fillStyle='rgba(240,244,255,0.42)';ctx.font='12px Outfit,sans-serif';
+        const subStr=sub.length>38?sub.slice(0,37)+'…':sub;
+        ctx.fillText(subStr,W/2,237);
+      }
+
+      // Progress bar
+      const prog=parseFloat(document.getElementById('pfill')?.style.width)||0;
+      const pbY=296,pbX=40,pbW=W-80;
+      ctx.fillStyle='rgba(255,255,255,0.12)';
+      ctx.beginPath();ctx.roundRect(pbX,pbY,pbW,5,3);ctx.fill();
+      if(prog>0){
+        const pg=ctx.createLinearGradient(pbX,0,pbX+pbW,0);
+        pg.addColorStop(0,c1s);pg.addColorStop(1,c2s);
+        ctx.fillStyle=pg;
+        ctx.beginPath();ctx.roundRect(pbX,pbY,pbW*prog/100,5,3);ctx.fill();
+        // thumb dot
+        const tx2=pbX+pbW*prog/100;
+        ctx.beginPath();ctx.arc(tx2,pbY+2.5,7,0,Math.PI*2);
+        ctx.fillStyle='#fff';ctx.fill();
+      }
+
+      // Times
+      const curT=document.getElementById('tCur')?.textContent||'0:00';
+      const totT=document.getElementById('tTot')?.textContent||'0:00';
+      ctx.fillStyle='rgba(240,244,255,0.38)';ctx.font='11px Space Mono,monospace';
+      ctx.textAlign='left';ctx.fillText(curT,pbX,pbY-6);
+      ctx.textAlign='right';ctx.fillText(totT,pbX+pbW,pbY-6);
+
+      // Controls row
+      const cy=268;
+      // Prev
+      ctx.fillStyle='rgba(255,255,255,0.08)';
+      ctx.beginPath();ctx.arc(ZONES.prev.x+ZONES.prev.w/2,cy,22,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(240,244,255,0.7)';
+      // prev icon
+      const px=ZONES.prev.x+ZONES.prev.w/2;
+      ctx.beginPath();ctx.moveTo(px+8,cy-9);ctx.lineTo(px-4,cy);ctx.lineTo(px+8,cy+9);ctx.closePath();ctx.fill();
+      ctx.fillRect(px-7,cy-9,4,18);
+
+      // Next
+      ctx.fillStyle='rgba(255,255,255,0.08)';
+      ctx.beginPath();ctx.arc(ZONES.next.x+ZONES.next.w/2,cy,22,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(240,244,255,0.7)';
+      const nx=ZONES.next.x+ZONES.next.w/2;
+      ctx.beginPath();ctx.moveTo(nx-8,cy-9);ctx.lineTo(nx+4,cy);ctx.lineTo(nx-8,cy+9);ctx.closePath();ctx.fill();
+      ctx.fillRect(nx+3,cy-9,4,18);
+
+      // Play/Pause big button
+      const ppx=ZONES.play.x+ZONES.play.w/2,ppy=cy;
+      const ppG=ctx.createLinearGradient(ppx-28,ppy-28,ppx+28,ppy+28);
+      ppG.addColorStop(0,c1s);ppG.addColorStop(1,c2s);
+      ctx.fillStyle=ppG;
+      ctx.beginPath();ctx.arc(ppx,ppy,28,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff';
+      if(playing){
+        ctx.fillRect(ppx-11,ppy-12,8,24);
+        ctx.fillRect(ppx+3,ppy-12,8,24);
+      } else {
+        ctx.beginPath();ctx.moveTo(ppx-8,ppy-13);ctx.lineTo(ppx+14,ppy);ctx.lineTo(ppx-8,ppy+13);ctx.closePath();ctx.fill();
+      }
+
+      // Volume
+      const vol=Math.round(audioEl.volume*100);
+      // Vol- button
+      ctx.fillStyle='rgba(255,255,255,0.07)';
+      ctx.beginPath();ctx.roundRect(ZONES.volDown.x,ZONES.volDown.y,ZONES.volDown.w,ZONES.volDown.h,8);ctx.fill();
+      ctx.fillStyle='rgba(240,244,255,0.65)';ctx.font='bold 18px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('−',ZONES.volDown.x+18,ZONES.volDown.y+18);
+      // Vol+ button
+      ctx.fillStyle='rgba(255,255,255,0.07)';
+      ctx.beginPath();ctx.roundRect(ZONES.volUp.x,ZONES.volUp.y,ZONES.volUp.w,ZONES.volUp.h,8);ctx.fill();
+      ctx.fillStyle='rgba(240,244,255,0.65)';
+      ctx.fillText('+',ZONES.volUp.x+18,ZONES.volUp.y+18);
+      // Vol bar
+      ctx.fillStyle='rgba(255,255,255,0.08)';
+      ctx.beginPath();ctx.roundRect(76,178,W-152,16,8);ctx.fill();
+      const vg=ctx.createLinearGradient(76,0,76+W-152,0);
+      vg.addColorStop(0,c1s+'aa');vg.addColorStop(1,c2s+'aa');
+      ctx.fillStyle=vg;
+      ctx.beginPath();ctx.roundRect(76,178,(W-152)*vol/100,16,8);ctx.fill();
+      ctx.fillStyle='rgba(240,244,255,0.4)';ctx.font='10px Space Mono,monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(vol+'%',W/2,186);
+
+      // 3D label if active
+      if(spatialOn){
+        ctx.fillStyle=c2s+'cc';ctx.font='bold 10px Outfit,sans-serif';
+        ctx.textAlign='right';ctx.textBaseline='top';
+        ctx.fillText('🎧 3D',W-12,10);
+      }
+    }
+
+    function pipLoop(){drawFrame();pipRaf=requestAnimationFrame(pipLoop)}
+
+    const stream=canvas.captureStream(30);
+    pipVid.srcObject=stream;
+
+    // ── Fix: wait for metadata to load before calling requestPictureInPicture ──
+    await new Promise((resolve,reject)=>{
+      // If already has metadata (readyState >= HAVE_METADATA = 1), resolve immediately
+      if(pipVid.readyState>=1){resolve();return;}
+      pipVid.addEventListener('loadedmetadata',resolve,{once:true});
+      pipVid.addEventListener('error',reject,{once:true});
+      // Safety timeout
+      setTimeout(resolve,2000);
+    });
+
+    await pipVid.play().catch(()=>{});
+
+    // ── Fix: ensure video is playing and has dimensions before PiP ──
+    await new Promise((resolve)=>{
+      if(pipVid.readyState>=2){resolve();return;}
+      pipVid.addEventListener('canplay',resolve,{once:true});
+      setTimeout(resolve,1000);
+    });
+
+    await pipVid.requestPictureInPicture();
+
+    pipActive=true;
+    btn.classList.add('pip-active');
+    tooltip.textContent='Закрыть PiP';
+    pipLoop();
+
+    // ── Media Session controls — Chrome shows these as overlay buttons in PiP ──
+    if('mediaSession' in navigator){
+      navigator.mediaSession.setActionHandler('previoustrack',prevTrack);
+      navigator.mediaSession.setActionHandler('nexttrack',nextTrack);
+      navigator.mediaSession.setActionHandler('play',()=>{if(!playing)togglePlay()});
+      navigator.mediaSession.setActionHandler('pause',()=>{if(playing)togglePlay()});
+      try{navigator.mediaSession.setActionHandler('seekto',d=>{if(audioEl.duration)audioEl.currentTime=d.seekTime});}catch(_){}
+    }
+
+  }catch(err){
+    console.warn('PiP error:',err);
+    document.getElementById('pipTooltip').textContent='Ошибка PiP';
+    setTimeout(()=>{document.getElementById('pipTooltip').textContent='Picture-in-Picture'},2200);
+  }
+}
+
+// PiP volume helpers called from canvas overlay (media session seekforward/backward)
+function pipVolDown(){audioEl.volume=Math.max(0,audioEl.volume-0.1);document.getElementById('volS').value=Math.round(audioEl.volume*100)}
+function pipVolUp(){audioEl.volume=Math.min(1,audioEl.volume+0.1);document.getElementById('volS').value=Math.round(audioEl.volume*100)}
+// Wire seekforward/backward for volume in PiP
+try{
+  navigator.mediaSession.setActionHandler('seekforward',()=>pipVolUp());
+  navigator.mediaSession.setActionHandler('seekbackward',()=>pipVolDown());
+}catch(_){}
+
+/* ── 3D SPATIAL AUDIO ── */
+let spatialOn=false;
+let spatialAngle=0;
+let spatialRaf=null;
+let spatialSpeed=4; // 1-10
+let pannerNode=null;
+let pannerSrc=null;
+let spatialCtxConnected=false;
+
+function toggleSpatial(){
+  spatialOn=!spatialOn;
+  const toggle=document.getElementById('spatialToggle');
+  const orbit=document.getElementById('spatialOrbit');
+  const row=document.getElementById('spatialRow');
+  toggle.classList.toggle('on',spatialOn);
+  row.classList.toggle('active',spatialOn);
+  orbit.style.display=spatialOn?'block':'none';
+
+  if(spatialOn){
+    ensureCtx();
+    _setupPanner();
+    _runSpatial();
+  } else {
+    _stopSpatial();
+    _teardownPanner();
+  }
+}
+
+function updateSpatialSpeed(v){
+  spatialSpeed=parseInt(v);
+}
+
+function _setupPanner(){
+  if(pannerNode) return;
+  ensureCtx();
+  if(!actx) return;
+
+  try{
+    pannerNode=actx.createPanner();
+    pannerNode.panningModel='HRTF';
+    pannerNode.distanceModel='inverse';
+    pannerNode.refDistance=1;
+    pannerNode.maxDistance=100;
+    pannerNode.rolloffFactor=1;
+    pannerNode.coneInnerAngle=360;
+    pannerNode.coneOuterAngle=0;
+    pannerNode.coneOuterGain=0;
+
+    // Rewrite routing: disconnect last EQ filter from destination, go through panner
+    const last=filters[filters.length-1];
+    last.disconnect();
+    last.connect(pannerNode);
+    pannerNode.connect(actx.destination);
+    spatialCtxConnected=true;
+  }catch(e){console.warn('Panner setup error:',e)}
+}
+
+function _teardownPanner(){
+  if(!pannerNode||!spatialCtxConnected) return;
+  try{
+    const last=filters[filters.length-1];
+    last.disconnect();
+    pannerNode.disconnect();
+    last.connect(actx.destination);
+    spatialCtxConnected=false;
+    pannerNode=null;
+  }catch(e){}
+}
+
+function _runSpatial(){
+  // ── Audio position update via setInterval — works in background tabs ──
+  // rAF pauses when tab is hidden; setInterval keeps running
+  if(window._spatialInterval) clearInterval(window._spatialInterval);
+
+  const TICK_MS=16; // ~60fps equivalent for audio
+  window._spatialInterval=setInterval(()=>{
+    if(!spatialOn){clearInterval(window._spatialInterval);window._spatialInterval=null;return;}
+    spatialAngle += (0.005 + (spatialSpeed-1)*0.006);
+
+    const radius=4;
+    const x=Math.sin(spatialAngle)*radius;
+    const z=Math.cos(spatialAngle)*radius;
+    const y=Math.sin(spatialAngle*0.33)*1.2;
+
+    if(pannerNode&&actx){
+      try{
+        const t=actx.currentTime;
+        if(pannerNode.positionX){
+          pannerNode.positionX.setTargetAtTime(x,t,0.025);
+          pannerNode.positionY.setTargetAtTime(y,t,0.025);
+          pannerNode.positionZ.setTargetAtTime(z,t,0.025);
+        } else {
+          pannerNode.setPosition(x,y,z);
+        }
+      }catch(_){}
+    }
+  }, TICK_MS);
+
+  // ── Visual orbit dot via rAF — only when tab is visible ──
+  function vizLoop(){
+    if(!spatialOn){return;}
+    const dot=document.getElementById('orbitDot');
+    if(dot){
+      const ringR=21;
+      const vx=Math.sin(spatialAngle)*ringR;
+      const vy=Math.cos(spatialAngle)*ringR*0.38;
+      const scale=0.7+0.6*(Math.cos(spatialAngle)+1)/2;
+      const op=(0.5+0.5*(Math.cos(spatialAngle)+1)/2).toFixed(2);
+      dot.style.transform=`translate(calc(${vx}px - 50%), calc(${vy}px - 50%)) scale(${scale.toFixed(2)})`;
+      dot.style.opacity=op;
+    }
+    spatialRaf=requestAnimationFrame(vizLoop);
+  }
+  cancelAnimationFrame(spatialRaf);
+  spatialRaf=requestAnimationFrame(vizLoop);
+
+  // ── Page Visibility: resume AudioContext if suspended when returning to tab ──
+  document.removeEventListener('visibilitychange',_onVisibilityChange);
+  document.addEventListener('visibilitychange',_onVisibilityChange);
+}
+
+function _onVisibilityChange(){
+  if(!spatialOn) return;
+  if(document.visibilityState==='visible'){
+    if(actx&&actx.state==='suspended') actx.resume().catch(()=>{});
+    // restart viz loop (rAF was paused)
+    cancelAnimationFrame(spatialRaf);
+    const dot=document.getElementById('orbitDot');
+    function vizLoop(){
+      if(!spatialOn){return;}
+      if(dot){
+        const ringR=21;
+        const vx=Math.sin(spatialAngle)*ringR;
+        const vy=Math.cos(spatialAngle)*ringR*0.38;
+        const scale=0.7+0.6*(Math.cos(spatialAngle)+1)/2;
+        dot.style.transform=`translate(calc(${vx}px - 50%), calc(${vy}px - 50%)) scale(${scale.toFixed(2)})`;
+        dot.style.opacity=(0.5+0.5*(Math.cos(spatialAngle)+1)/2).toFixed(2);
+      }
+      spatialRaf=requestAnimationFrame(vizLoop);
+    }
+    spatialRaf=requestAnimationFrame(vizLoop);
+  }
+}
+
+function _stopSpatial(){
+  cancelAnimationFrame(spatialRaf);spatialRaf=null;
+  if(window._spatialInterval){clearInterval(window._spatialInterval);window._spatialInterval=null;}
+  document.removeEventListener('visibilitychange',_onVisibilityChange);
+  const dot=document.getElementById('orbitDot');
+  if(dot){dot.style.transform='translate(-50%,-50%) scale(1)';dot.style.opacity='1'}
+}
 
 /* ── TILT ── */
 const playerEl=document.getElementById('player');
